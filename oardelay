@@ -1,0 +1,67 @@
+#!/bin/bash
+
+##########
+# This script allows you to schedule a lot of jobs
+# using the 'array-param-file' option of 'oarsub'
+# but to execute few of them at a time.
+#
+# Use this with a notify script that will 'wake up'
+# jobs a soon as one is completed.
+#
+# (c) Guillaume-Jean Herbiet - 2011
+#     guillaume-jean@herbiet.net
+#
+##########
+
+#
+# Set this to meaningful values
+#
+PROG="/path/to/myprogram"
+PROGNAME="somename"
+ARRAY_PARAM_FILE="./params.txt"
+NOTIFY_SCRIPT="/path/to/oarwake"
+JOBS_FILE="/path/to/jobs.txt"
+JOBS_LOCK_FILE="/path/to/jobs.lck"
+
+#
+# Maximum number of job executed at the same time
+#
+MAX_CONCURRENT_JOBS=50
+
+
+##########
+# Don't change this
+
+# Schedule (hold) the whole set of jobs
+oarsub -l core=1,walltime=240 --hold -n "$PROGNAME" "$PROG" \
+	--array-param-file "$ARRAY_PARAM_FILE" \
+	--notify "exec:$NOTIFY_SCRIPT $OAR_JOB_ID" \
+	| grep "OAR_JOB_ID" | cut -d "=" -f 2 > "$JOBS_FILE"
+
+# Set the number of concurrent jobs
+# either from the command line
+# or the default value
+if [ -z $1 ]; then
+	CONCURRENT_JOBS=$MAX_CONCURRENT_JOBS
+else
+	CONCURRENT_JOBS=$1
+fi 
+
+# Launch first serie of jobs
+for i in `seq 1 $CONCURRENT_JOBS`; do
+	
+	while [ -e "$JOBS_LOCK_FILE" ]; do
+		sleep $[ ( $RANDOM % 60 )  + 1 ]s
+	done
+
+	touch "$JOBS_LOCK_FILE"
+	if [ -s "$JOBS_FILE" ]; then
+		NEXT_JOB=`head -n 1 "$JOBS_FILE"`
+		sed -i 1d "$JOBS_FILE"
+		oarresume $NEXT_JOB
+	fi
+	rm -f "$JOBS_LOCK_FILE"
+done
+
+# EOF
+##########
