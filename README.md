@@ -1,4 +1,4 @@
-oardelay
+oarhold
 ========
 
 This script allows you to generate a lot of jobs using the `array-param-file`
@@ -7,7 +7,7 @@ option of `oarsub` but to execute few of them at a time.
 Use this with a notify script that will *wake up* a new job a soon as one
 is completed.
 
-	./oardelay [NUMBER_OF_CONCURRENT_RUNNING_JOBS]
+	./oarhold [NUMBER_OF_CONCURRENT_RUNNING_JOBS]
 
 The default number of concurrent running jobs is set to 50.
 
@@ -17,12 +17,12 @@ oarwake
 This script *wakes up* a held job whose id is in a file when another job
 completes.
 
-To use with the `oardelay` script.
+To use with the `oarhold` script.
 
 Configuration
 =============
 
-Set the following variables in `oardelay`:
+Set the following variables in `oarhold`:
 
 	PROG="/path/to/myprogram"
 	PROGNAME="somename"
@@ -44,7 +44,7 @@ Ensure that the `JOBS_FILE` and `JOBS_LOCK_FILE` are consistent between both scr
 Usage
 =====
 
-After configuring both scripts, launch `./oardelay [N]` where N is the desired
+After configuring both scripts, launch `./oarhold [N]` where N is the desired
 number of concurrent running jobs.
 
 It will create and hold as many instances of `PROG` required by the

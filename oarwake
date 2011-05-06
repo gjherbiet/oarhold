@@ -5,7 +5,7 @@
 # whose id is in a file when another
 # job completes.
 #
-# To use with the 'oardelay' script
+# To use with the 'oarhold' script
 #
 # (c) Guillaume-Jean Herbiet - 2011
 #     guillaume-jean@herbiet.net
